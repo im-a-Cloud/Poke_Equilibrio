@@ -1,0 +1,15 @@
+.img-Pokémon {
+  width: 100%;
+  height: auto;
+  max-width: 100px;
+  margin-bottom: 20px;
+}
+.botaoAdicionar {
+  background-color: #ffcb05;
+  color: #2a75bb;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}

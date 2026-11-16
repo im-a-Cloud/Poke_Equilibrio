@@ -1,0 +1,58 @@
+<h1>Meu Time de Pokémon</h1>
+<form (ngSubmit)="procurarPokemon()">
+  <label for="pokemon">Nome do Pokémon:</label><br>
+  <input type="text" id="pokemon" name="pokemon" [(ngModel)]="nomePokemon" required><br>
+  <button type="submit" class="btn btn-primary">Adicionar</button>
+</form>
+<table class="tabelaTime">
+  <thead>
+    <tr>
+      <th>Foto Pokémon</th>
+      <th>Nome</th>
+      <th>Tipo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Adicione () após timePokemon -->
+  <tr *ngFor="let poke of timePokemon()">
+    <td><img [src]="poke.imagemPokemon" [alt]="poke.nomePokemon" class="img-Pokémon"></td>
+    <td>{{ poke.nomePokemon | titlecase }}</td>
+    <td>{{ poke.tiposPokemon }}</td>
+  </tr>
+  </tbody>
+</table>
+<button type="button" (click)="checarFraquezas(timePokemon())" class="btn btn-secondary">
+  Ver Fraquezas
+</button>
+
+<button type="button" (click)="checarResistencias(timePokemon())" class="btn btn-secondary">
+  Ver Resistências
+</button>
+
+<button type="button" (click)="checarImunidades(timePokemon())" class="btn btn-secondary">
+  Ver Imunidades
+</button>
+
+<button type="button" (click)="diferenciarFraquezas()" class="btn btn-secondary">
+  Ver Fraquezas Diferenciadas
+</button>
+
+<div *ngIf="fraquezas().length > 0">
+  <h3>Fraquezas do Time:</h3>
+  <p>{{ fraquezas().join(', ') }}</p>
+</div>
+
+<div *ngIf="resultado().length > 0">
+  <h3>Fraquezas Diferenciadas:</h3>
+  <p>{{ resultado().join(', ') }}</p>
+</div>
+
+<div *ngIf="resistencias().length > 0">
+  <h3>Resistências do Time:</h3>
+  <p>{{ resistencias().join(', ') }}</p>
+</div>
+<div *ngIf="imunidades().length > 0">
+  <h3>Imunidades do Time:</h3>
+  <p>{{ imunidades().join(', ') }}</p>
+</div>
+
