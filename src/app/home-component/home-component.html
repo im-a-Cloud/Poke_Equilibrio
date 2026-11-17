@@ -21,38 +21,26 @@
   </tr>
   </tbody>
 </table>
-<button type="button" (click)="checarFraquezas(timePokemon())" class="btn btn-secondary">
-  Ver Fraquezas
-</button>
 
-<button type="button" (click)="checarResistencias(timePokemon())" class="btn btn-secondary">
-  Ver Resistências
-</button>
-
-<button type="button" (click)="checarImunidades(timePokemon())" class="btn btn-secondary">
-  Ver Imunidades
-</button>
-
-<button type="button" (click)="diferenciarFraquezas()" class="btn btn-secondary">
+<button type="button" (click)="calculoGeral(timePokemon())" class="btn btn-secondary">
   Ver Fraquezas Diferenciadas
 </button>
-
-<div *ngIf="fraquezas().length > 0">
-  <h3>Fraquezas do Time:</h3>
-  <p>{{ fraquezas().join(', ') }}</p>
-</div>
 
 <div *ngIf="resultado().length > 0">
   <h3>Fraquezas Diferenciadas:</h3>
   <p>{{ resultado().join(', ') }}</p>
 </div>
 
-<div *ngIf="resistencias().length > 0">
-  <h3>Resistências do Time:</h3>
-  <p>{{ resistencias().join(', ') }}</p>
-</div>
 <div *ngIf="imunidades().length > 0">
   <h3>Imunidades do Time:</h3>
   <p>{{ imunidades().join(', ') }}</p>
 </div>
 
+<div *ngIf="fraquezasAgrupadas().length > 0">
+  <h3>Fraquezas Diferenciadas:</h3>
+  <ul>
+    <li *ngFor="let item of fraquezasAgrupadas()">
+      <strong>{{ item.tipo | titlecase }}:</strong> {{ item.quantidade }}x
+    </li>
+  </ul>
+</div>
