@@ -4,6 +4,7 @@
   <input type="text" id="pokemon" name="pokemon" [(ngModel)]="nomePokemon" required><br>
   <button type="submit" class="btn btn-primary">Adicionar</button>
 </form>
+
 <table class="tabelaTime">
   <thead>
     <tr>
@@ -13,12 +14,17 @@
     </tr>
   </thead>
   <tbody>
-    <!-- Adicione () após timePokemon -->
-  <tr *ngFor="let poke of timePokemon()">
-    <td><img [src]="poke.imagemPokemon" [alt]="poke.nomePokemon" class="img-Pokémon"></td>
-    <td>{{ poke.nomePokemon | titlecase }}</td>
-    <td>{{ poke.tiposPokemon }}</td>
-  </tr>
+      @for (pokemon of timePokemon(); track $index) {
+        <div class="card-pokemon">
+          <img [src]="pokemon.imagemPokemon" [alt]="pokemon.nomePokemon" />
+          <h3>{{ pokemon.nomePokemon | titlecase }}</h3>
+          <p>{{ pokemon.tiposPokemon }}</p>
+
+          <button type="button" (click)="removerPokemon($index)">
+            Remover
+          </button>
+        </div>
+      }
   </tbody>
 </table>
 
@@ -26,21 +32,46 @@
   Ver Fraquezas Diferenciadas
 </button>
 
-<div *ngIf="resultado().length > 0">
-  <h3>Fraquezas Diferenciadas:</h3>
-  <p>{{ resultado().join(', ') }}</p>
-</div>
-
-<div *ngIf="imunidades().length > 0">
-  <h3>Imunidades do Time:</h3>
-  <p>{{ imunidades().join(', ') }}</p>
-</div>
-
 <div *ngIf="fraquezasAgrupadas().length > 0">
-  <h3>Fraquezas Diferenciadas:</h3>
+  <h3>Fraquezas Compartilhadas do Time:</h3>
   <ul>
     <li *ngFor="let item of fraquezasAgrupadas()">
       <strong>{{ item.tipo | titlecase }}:</strong> {{ item.quantidade }}x
     </li>
   </ul>
 </div>
+
+<div *ngIf="imunidades().length > 0">
+  <h3>Imunidades do Time:</h3>
+  <p>{{ imunidades().join(', ') }}</p>
+  <p><strong>Pokémons com Imunidade:</strong> {{ pokemonsImunes().join(', ') }}</p>
+</div>
+
+@for (grupo of pokemonsPorFraqueza() | keyvalue; track grupo.key) {
+  <div>
+    <strong>Fraco contra {{ grupo.key | titlecase }}:</strong>
+    <span>{{ grupo.value.join(', ') }}</span>
+  </div>
+}
+@if (ofensivaSuperEficaz().length > 0) {
+  <div>
+    <h3>Cobertura Ofensiva (Super Eficaz 2x):</h3>
+    <p>{{ ofensivaSuperEficaz().join(', ') }}</p>
+  </div>
+}
+
+@if (ofensivaPoucoEficaz().length > 0) {
+  <div>
+    <h3>Sem Cobertura Super Eficaz (Pouco Eficaz):</h3>
+    <p>{{ ofensivaPoucoEficaz().join(', ') }}</p>
+  </div>
+}
+@if (ofensivaIneficaz().length > 0) {
+  <div>
+    <h3>Sem Cobertura (Ineficaz):</h3>
+    <p>{{ ofensivaIneficaz().join(', ') }}</p>
+  </div>
+}
+<button type="button" (click)="limparTime()" class="btn btn-secondary">
+  Limpar Time
+</button>
