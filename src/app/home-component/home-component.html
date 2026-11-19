@@ -1,77 +1,231 @@
-<h1>Meu Time de Pokémon</h1>
-<form (ngSubmit)="procurarPokemon()">
-  <label for="pokemon">Nome do Pokémon:</label><br>
-  <input type="text" id="pokemon" name="pokemon" [(ngModel)]="nomePokemon" required><br>
-  <button type="submit" class="btn btn-primary">Adicionar</button>
-</form>
+<div class="container">
+  <h1>Seu Time de Pokémon</h1>
 
-<table class="tabelaTime">
-  <thead>
-    <tr>
-      <th>Foto Pokémon</th>
-      <th>Nome</th>
-      <th>Tipo</th>
-    </tr>
-  </thead>
-  <tbody>
-      @for (pokemon of timePokemon(); track $index) {
-        <div class="card-pokemon">
-          <img [src]="pokemon.imagemPokemon" [alt]="pokemon.nomePokemon" />
-          <h3>{{ pokemon.nomePokemon | titlecase }}</h3>
-          <p>{{ pokemon.tiposPokemon }}</p>
+  <form class="form-busca" (ngSubmit)="procurarPokemon()">
+    <div class="campo-grupo">
+      <label for="pokemon">Nome do Pokémon:</label>
+      <input
+        type="text"
+        id="pokemon"
+        name="pokemon"
+        [(ngModel)]="nomePokemon"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">Adicionar</button>
+  </form>
 
-          <button type="button" (click)="removerPokemon($index)">
-            Remover
-          </button>
+  <div class="grid-time">
+    @for (pokemon of timePokemon(); track $index) {
+      <div class="card-pokemon" (click)="detalharPokemon(pokemon.nomePokemon)">
+        <img [src]="pokemon.imagemPokemon" [alt]="pokemon.nomePokemon" />
+        <h3>{{ pokemon.nomePokemon | titlecase }}</h3>
+      <div class="tipos-container">
+        @for (tipo of pokemon.tiposPokemon; track tipo) {
+          <span class="badge-tipo" [class]="'tipo-' + tipo">
+            {{ tipo }}
+          </span>
+        }
+      </div>
+        <button
+          type="button"
+          class="btn-remover"
+          (click)="$event.stopPropagation(); removerPokemon($index)"
+        >
+          Remover
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (timePokemon().length > 0) {
+    <div class="acoes-time">
+      <button type="button" (click)="calculoGeral(timePokemon())" class="btn btn-analisar">
+        Ver Fraquezas Diferenciadas
+      </button>
+      <button type="button" (click)="limparTime()" class="btn btn-limpar">
+        Limpar Time
+      </button>
+    </div>
+  }
+
+<div class="resultados-grid">
+    <!-- Fraquezas Compartilhadas -->
+    @if (fraquezasAgrupadas().length > 0) {
+      <div class="painel-resultado alerta-perigo">
+        <h3>Fraquezas Compartilhadas do Time</h3>
+        <div class="lista-badges">
+          @for (item of fraquezasAgrupadas(); track item.tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + item.tipo">
+              {{ item.tipo }} ({{ item.quantidade }}x)
+            </span>
+          }
         </div>
-      }
-  </tbody>
-</table>
+      </div>
+    }
 
-<button type="button" (click)="calculoGeral(timePokemon())" class="btn btn-secondary">
-  Ver Fraquezas Diferenciadas
-</button>
+    <!-- Imunidades do Time -->
+    @if (imunidades().length > 0) {
+      <div class="painel-resultado alerta-imune">
+        <h3>Imunidades do Time</h3>
+        <div class="lista-badges">
+          @for (tipo of imunidades(); track tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + tipo">
+              {{ tipo }}
+            </span>
+          }
+        </div>
+        <p class="detalhe-imune">
+          <strong>Pokémons com Imunidade:</strong> {{ pokemonsImunes().join(', ') }}
+        </p>
+      </div>
+    }
 
-<div *ngIf="fraquezasAgrupadas().length > 0">
-  <h3>Fraquezas Compartilhadas do Time:</h3>
-  <ul>
-    <li *ngFor="let item of fraquezasAgrupadas()">
-      <strong>{{ item.tipo | titlecase }}:</strong> {{ item.quantidade }}x
-    </li>
-  </ul>
+    <!-- Fraquezas Descobertas por Tipo -->
+    @if ((pokemonsPorFraqueza() | keyvalue).length > 0) {
+      <div class="painel-resultado">
+        <h3>Fraquezas Descobertas por Tipo</h3>
+        @for (grupo of pokemonsPorFraqueza() | keyvalue; track grupo.key) {
+          <div class="linha-fraqueza-badge">
+            <span class="badge-tipo" [class]="'tipo-' + grupo.key">
+              {{ grupo.key }}
+            </span>
+            <span>{{ grupo.value.join(', ') }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Cobertura Ofensiva (Super Eficaz 2x) -->
+    @if (ofensivaSuperEficaz().length > 0) {
+      <div class="painel-resultado alerta-sucesso">
+        <h3>Cobertura Ofensiva (Super Eficaz 2x)</h3>
+        <div class="lista-badges">
+          @for (tipo of ofensivaSuperEficaz(); track tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + tipo">
+              {{ tipo }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Sem Cobertura Super Eficaz (Pouco Eficaz) -->
+    @if (ofensivaPoucoEficaz().length > 0) {
+      <div class="painel-resultado alerta-aviso">
+        <h3>Sem Cobertura Super Eficaz (Pouco Eficaz)</h3>
+        <div class="lista-badges">
+          @for (tipo of ofensivaPoucoEficaz(); track tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + tipo">
+              {{ tipo }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Sem Cobertura (Ineficaz) -->
+    @if (ofensivaIneficaz().length > 0) {
+      <div class="painel-resultado alerta-aviso">
+        <h3>Sem Cobertura (Ineficaz)</h3>
+        <div class="lista-badges">
+          @for (tipo of ofensivaIneficaz(); track tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + tipo">
+              {{ tipo }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>
 
-<div *ngIf="imunidades().length > 0">
-  <h3>Imunidades do Time:</h3>
-  <p>{{ imunidades().join(', ') }}</p>
-  <p><strong>Pokémons com Imunidade:</strong> {{ pokemonsImunes().join(', ') }}</p>
-</div>
+<!-- Modal de Detalhes Individuais com Badges -->
+@if (pokemonDetalhesIndividuais(); as poke) {
+  <div class="modal-backdrop" (click)="fecharDetalhes()">
+    <div class="painel-detalhes" (click)="$event.stopPropagation()">
+      <div class="cabecalho-detalhes">
+        <h3>{{ poke.nome | titlecase }}</h3>
+        <button type="button" class="btn-fechar" (click)="fecharDetalhes()">✕</button>
+      </div>
 
-@for (grupo of pokemonsPorFraqueza() | keyvalue; track grupo.key) {
-  <div>
-    <strong>Fraco contra {{ grupo.key | titlecase }}:</strong>
-    <span>{{ grupo.value.join(', ') }}</span>
-  </div>
-}
-@if (ofensivaSuperEficaz().length > 0) {
-  <div>
-    <h3>Cobertura Ofensiva (Super Eficaz 2x):</h3>
-    <p>{{ ofensivaSuperEficaz().join(', ') }}</p>
-  </div>
-}
+      <div class="tipos-modal">
+        <strong>Tipos:</strong>
+        <div class="lista-badges">
+          @for (tipo of poke.tipos; track tipo) {
+            <span class="badge-tipo" [class]="'tipo-' + tipo">
+              {{ tipo }}
+            </span>
+          }
+        </div>
+      </div>
 
-@if (ofensivaPoucoEficaz().length > 0) {
-  <div>
-    <h3>Sem Cobertura Super Eficaz (Pouco Eficaz):</h3>
-    <p>{{ ofensivaPoucoEficaz().join(', ') }}</p>
+      <div class="secao-modal">
+        <h4>Defesa</h4>
+
+        <div class="grupo-detalhe">
+          <strong>Fraquezas:</strong>
+          @if (poke.fraquezas.length > 0) {
+            <div class="lista-badges">
+              @for (item of poke.fraquezas; track item) {
+                <span class="badge-tipo" [class]="'tipo-' + item.split(' ')[0]">
+                  {{ item }}
+                </span>
+              }
+            </div>
+          } @else {
+            <span>Nenhuma</span>
+          }
+        </div>
+
+        <div class="grupo-detalhe">
+          <strong>Resistências:</strong>
+          @if (poke.resistencias.length > 0) {
+            <div class="lista-badges">
+              @for (item of poke.resistencias; track item) {
+                <span class="badge-tipo" [class]="'tipo-' + item.split(' ')[0]">
+                  {{ item }}
+                </span>
+              }
+            </div>
+          } @else {
+            <span>Nenhuma</span>
+          }
+        </div>
+
+        <div class="grupo-detalhe">
+          <strong>Imunidades:</strong>
+          @if (poke.imunidades.length > 0) {
+            <div class="lista-badges">
+              @for (tipo of poke.imunidades; track tipo) {
+                <span class="badge-tipo" [class]="'tipo-' + tipo">
+                  {{ tipo }}
+                </span>
+              }
+            </div>
+          } @else {
+            <span>Nenhuma</span>
+          }
+        </div>
+      </div>
+
+      <div class="secao-modal">
+        <h4>Ataque (STAB)</h4>
+        <div class="grupo-detalhe">
+          <strong>Super Eficaz (2x):</strong>
+          @if (poke.superEficaz.length > 0) {
+            <div class="lista-badges">
+              @for (tipo of poke.superEficaz; track tipo) {
+                <span class="badge-tipo" [class]="'tipo-' + tipo">
+                  {{ tipo }}
+                </span>
+              }
+            </div>
+          } @else {
+            <span>Nenhum</span>
+          }
+        </div>
+      </div>
+    </div>
   </div>
 }
-@if (ofensivaIneficaz().length > 0) {
-  <div>
-    <h3>Sem Cobertura (Ineficaz):</h3>
-    <p>{{ ofensivaIneficaz().join(', ') }}</p>
-  </div>
-}
-<button type="button" (click)="limparTime()" class="btn btn-secondary">
-  Limpar Time
-</button>
